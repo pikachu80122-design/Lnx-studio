@@ -1,0 +1,226 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LNX Studio</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: #10131c;
+      color: #ffffff;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background: #191e2c;
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #30394c;
+    }
+
+    .logo {
+      color: #718cff;
+      font-size: 25px;
+      font-weight: bold;
+    }
+
+    .status {
+      color: #6ee7a0;
+      font-size: 12px;
+    }
+
+    main {
+      padding: 18px;
+    }
+
+    h1 {
+      font-size: 25px;
+    }
+
+    .subtitle {
+      color: #9ca9c0;
+      font-size: 14px;
+    }
+
+    .editor {
+      background: #191e2c;
+      border: 1px solid #30394c;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+
+    .editor-title {
+      padding: 14px;
+      border-bottom: 1px solid #30394c;
+      color: #aebce0;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 260px;
+      padding: 16px;
+      background: #10131c;
+      color: #a9c4ff;
+      border: none;
+      outline: none;
+      resize: vertical;
+      font-family: monospace;
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    button {
+      border: none;
+      border-radius: 8px;
+      padding: 12px 18px;
+      background: #526ff5;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .terminal {
+      background: #090c13;
+      padding: 16px;
+      border-radius: 10px;
+      min-height: 100px;
+      margin-top: 15px;
+      color: #77e6a1;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+
+    footer {
+      padding: 20px;
+      text-align: center;
+      color: #78849c;
+      font-size: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">LNX Studio</div>
+  <div class="status">● ONLINE</div>
+</header>
+
+<main>
+  <h1>Bem-vindo ao LNX Studio!</h1>
+  <p class="subtitle">
+    Seu ambiente de programação com a linguagem LNX.
+  </p>
+
+  <section class="editor">
+    <div class="editor-title">
+      📄 main.lnx
+    </div>
+
+    <textarea id="code" spellcheck="false">mostrar "Olá, mundo!"
+
+criar nome = "LNX"
+
+mostrar nome
+
+criar numero = 10
+
+mostrar numero + 5</textarea>
+  </section>
+
+  <br>
+
+  <button onclick="executar()">▶ Executar código</button>
+
+  <h3>Terminal</h3>
+  <div class="terminal" id="terminal">
+    Aguardando execução...
+  </div>
+</main>
+
+<footer>
+  LNX Studio © 2026 — Sua programação, suas regras.
+</footer>
+
+<script>
+function executar() {
+  const codigo = document.getElementById("code").value;
+  const terminal = document.getElementById("terminal");
+
+  terminal.textContent = "LNX Runner iniciado...\n";
+
+  const variaveis = {};
+
+  try {
+    for (let linha of codigo.split("\n")) {
+      linha = linha.trim();
+
+      if (!linha || linha.startsWith("//")) continue;
+
+      if (linha.startsWith("mostrar ")) {
+        let valor = linha.substring(8).trim();
+
+        if (valor.startsWith('"') && valor.endsWith('"')) {
+          valor = valor.slice(1, -1);
+        } else if (valor in variaveis) {
+          valor = variaveis[valor];
+        } else if (/^[\d+\-*/ ().]+$/.test(valor)) {
+          valor = Function('"use strict"; return (' + valor + ')')();
+        } else {
+          throw new Error("Valor desconhecido: " + valor);
+        }
+
+        terminal.textContent += String(valor) + "\n";
+      }
+
+      else if (linha.startsWith("criar ")) {
+        const partes = linha.substring(6).split("=");
+
+        if (partes.length !== 2) {
+          throw new Error("Declaração inválida.");
+        }
+
+        const nome = partes[0].trim();
+        let valor = partes[1].trim();
+
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(nome)) {
+          throw new Error("Nome de variável inválido.");
+        }
+
+        if (valor.startsWith('"') && valor.endsWith('"')) {
+          valor = valor.slice(1, -1);
+        } else if (/^[\d+\-*/ ().]+$/.test(valor)) {
+          valor = Function('"use strict"; return (' + valor + ')')();
+        } else if (valor in variaveis) {
+          valor = variaveis[valor];
+        } else {
+          throw new Error("Valor inválido: " + valor);
+        }
+
+        variaveis[nome] = valor;
+      }
+
+      else {
+        throw new Error("Comando desconhecido: " + linha);
+      }
+    }
+
+    terminal.textContent += "\nPrograma finalizado!";
+  } catch (erro) {
+    terminal.textContent += "\nERRO: " + erro.message;
+  }
+}
+</script>
+
+</body>
+</html>
